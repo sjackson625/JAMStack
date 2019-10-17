@@ -171,11 +171,13 @@ images:
 
 ## Ajax
 
+fall2019-done
+
 Ajax allows you to get data from your own or another's web service. Web services expose specific data and services in the form of an API which allows you to get, delete, update or create data via [routes](http://jsonplaceholder.typicode.com/). Today, we are solely focused on getting data.
 
 The original [XMLHttpRequest](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest) browser API is in widespread use. You should make yourself familiar with it, however we will be using a newer (and simpler) API called fetch.
 
-Examine `posts/ajax.html` in VS Code:
+Create `posts/ajax.md` in VS Code:
 
 ```html
 ---
@@ -342,7 +344,7 @@ Let's use the New York Times [developers](https://developer.nytimes.com/) site f
 document.addEventListener('click', clickHandlers);
 
 // store the link plus the API key in a variable
-// https://api.nytimes.com/svc/topstories/v2/science.json?api-key=uQG4jhIEHKHKm0qMKGcTHqUgAolr1GM0
+
 var nyt =
   'https://api.nytimes.com/svc/topstories/v2/nyregion.json?api-key=uQG4jhIEHKHKm0qMKGcTHqUgAolr1GM0';
 
@@ -365,7 +367,7 @@ Examine the nature of the returned data in the console. The `results` property c
 document.addEventListener('click', clickHandlers);
 
 var nyt =
-  'https://api.nytimes.com/svc/topstories/v2/nyregion.json?api-key=OuQiMDj0xtgzO80mtbAa4phGCAJW7GKa';
+  'https://api.nytimes.com/svc/topstories/v2/nyregion.json?api-key=uQG4jhIEHKHKm0qMKGcTHqUgAolr1GM0';
 
 function clickHandlers() {
   if (event.target.matches('button')) {
@@ -418,7 +420,7 @@ An alternative method (which is more advanced) might use the `map()` method on t
 document.addEventListener('click', clickHandlers);
 
 var nyt =
-  'https://api.nytimes.com/svc/topstories/v2/nyregion.json?api-key=OuQiMDj0xtgzO80mtbAa4phGCAJW7GKa';
+  'https://api.nytimes.com/svc/topstories/v2/nyregion.json?api-key=uQG4jhIEHKHKm0qMKGcTHqUgAolr1GM0';
 
 function clickHandlers() {
   if (event.target.matches('button')) {
@@ -465,6 +467,8 @@ Add CSS to format the data:
 Note: I've added a class `ajax` to the body tag of this page _only_.
 
 Commit your changes and push to your github repo. A finished version of this file is available to you in the `spring2019-done` branch of this repo.
+
+stop
 
 ## Eleventy
 
@@ -1021,6 +1025,8 @@ images:
 [Home](/)
 ```
 
+fall2019-done
+
 Now that we have assigned the `posts` tag to every file in the `posts` folder, let's use that collection in `index.html` to display all the posts:
 
 ```html
@@ -1034,19 +1040,23 @@ navTitle: Home
 
 <p>Welcome to my site.</p>
 
-{% for post in collections.posts %}
-<h2><a href="{{ post.url }}">{{ post.data.pageTitle }}</a></h2>
-<em>{{ post.date | date: "%Y-%m-%d" }}</em>
-{% endfor %}
+{%- for post in collections.post -%}
+<h2>
+  <a href="{{ post.url }}">{{ post.data.pageTitle }}</a>
+</h2>
+<em>{{ post.date | date: '%Y-%m-%d' }}</em>
+{%- endfor -%}
 ```
 
 Note: the `|` character in `post.date | date: "%Y-%m-%d"` is a filter. There are quite a number of [available filters](https://help.shopify.com/en/themes/liquid/filters) for example: `upcase`:
 
 ```html
-{% for post in collections.posts %}
-<h2><a href="{{ post.url }}">{{ post.data.pageTitle | upcase }}</a></h2>
-<em>{{ post.date | date: "%Y-%m-%d" }}</em>
-{% endfor %}
+{%- for post in collections.post -%}
+<h2>
+  <a href="{{ post.url }}">{{ post.data.pageTitle | upcase }}</a>
+</h2>
+<em>{{ post.date | date: '%Y-%m-%d' }}</em>
+{%- endfor -%}
 ```
 
 Note: to make sure it shows up first in the nav add `date: 2010-01-01` to the front matter in `index.html`.
