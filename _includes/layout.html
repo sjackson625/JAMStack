@@ -8,9 +8,15 @@
     <title>My Blog</title>
   </head>
   <body>
+    <ul>
+      {% for post in collections.post %}
+      <li><a href="{{ post.url | url }}">{{ post.data.navTitle }}</a></li>
+      {% endfor %}
+    </ul>
     <div class="content">
       <h1>{{ pageTitle }}</h1>
       {{ content }}
     </div>
+    <script src="js/scripts.js"></script>
   </body>
 </html>

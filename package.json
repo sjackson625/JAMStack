@@ -17,7 +17,7 @@
     "url": "https://github.com/front-end-foundations/JAMStack/issues"
   },
   "homepage": "https://github.com/front-end-foundations/JAMStack#readme",
-  "devDependencies": {
+  "dependencies": {
     "@11ty/eleventy": "^0.12.1"
   }
 }
