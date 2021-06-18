@@ -11,7 +11,7 @@ Today were are building a simple multipage [static website](https://zealous-kilb
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/044ddd8e-853d-4282-8248-b2eeab94168d/deploy-status)](https://app.netlify.com/sites/zealous-kilby-113356/deploys)
 
-Create `.gitignore` with the contents `node_modules` for later when we turn this into a repo.
+Create `.gitignore` with the contents `node_modules`.
 
 ```sh
 $ npm init -y
@@ -70,7 +70,7 @@ tags: post
 <div></div>
 ```
 
-Add passthroughs for JavaScript and CSS in an `.eleventy.js` file.
+Add [passthroughs](https://www.11ty.dev/docs/copy/) for JavaScript and CSS in an `.eleventy.js` file.
 
 ```js
 module.exports = function (eleventyConfig) {
