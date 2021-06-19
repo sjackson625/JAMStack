@@ -25,7 +25,7 @@
     - [1.4.1. Fetch](#141-fetch)
     - [1.4.2. Rest API](#142-rest-api)
     - [1.4.3. Looping](#143-looping)
-    - [1.4.4. Adding Our Ajax](#144-adding-our-ajax)
+    - [Second Deploy](#second-deploy)
   - [1.5. Notes](#15-notes)
 
 ## 1.1. Homework
@@ -463,43 +463,58 @@ Note: the `|` character in `post.date | date: "%Y-%m-%d"` is a filter. There are
 
 Commit your changes, merge them into the main branch and push your site to a new Github repository.
 
-Sign into Netlify and create a new site from Git.
+Sign into Netlify and create a new site from Git. Check the settings to ensure that Netlify has auto detected 11ty and deploy the site.
+
+Examine the deploy logs. Note that Netlify will download and install 11ty in order to generate your `_site` folder.
 
 ## 1.4. Ajax
 
-Ajax allows you to get data from your own or another's service. Web services expose data in the form of an API which allows you to get, delete, update or create data via [routes](http://jsonplaceholder.typicode.com/). Today, we are solely focused on getting data.
+Ajax allows you to get data from your own or another's service. Web services expose data in the form of an API which allows you to get, delete, update or create data via [routes](http://jsonplaceholder.typicode.com/).
 
-The original [XMLHttpRequest](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest) browser API is in widespread use. You should make yourself familiar with it, however we will be using a newer (and simpler) API called fetch.
+Today, we will get data from the New York Times and display it on our home page.
 
-Examine `posts/ajax.html` in VS Code:
+Edit `index.md` in VS Code:
 
 ```html
 ---
-pageClass: ajax
+layout: layout.html
 pageTitle: New York Today
-navTitle: Ajax
 ---
 
-<h2>Ajax</h2>
+## Articles {% for page in collections.page %}
 
-<button>Click</button>
+<h2><a href="{{ page.url }}">{{ page.data.pageTitle | upcase }}</a></h2>
+<em>{{ page.date | date: "%Y-%m-%d" }}</em>
+{% endfor %}
 
-<div></div>
+<button>Show Stories</button>
 ```
 
-Don't worry about the `---` material at the top. It is not part of the HTML and can be ignored (we'll get to it later).
+Add a hard coded link to the page in the template:
 
-View the page in chrome.
+```html
+<nav>
+  <ul>
+    <!-- NEW -->
+    <li><a href="/">Home</a></li>
+    {% for page in collections.page %}
+    <li>
+      <a href="{{ page.url | url }}">{{ page.data.navTitle }}</a>
+    </li>
+    {% endfor %}
+  </ul>
+</nav>
+```
 
 ### 1.4.1. Fetch
 
-The `fetch()` [API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) takes one mandatory argument, the path to the resource you want to fetch. It returns something known as a Promise that, in turn, resolves to the response after the content is received.
+The `fetch()` [API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) takes one mandatory argument, the path to the resource you want to fetch. It returns something known as a Promise that returns a response after the content is received.
 
 _API_ stands for [Application Programming Interface](https://medium.freecodecamp.org/what-is-an-api-in-english-please-b880a3214a82).
 
 ### 1.4.2. Rest API
 
-We need data we can fetch from the internet. We'll start with [Typicode](http://jsonplaceholder.typicode.com/), a site set up just to play with. Note that you can do more than just get data, you can also post, create, delete and update data. Together these functions are often refered to a `CRUD`.
+We need data we can fetch from the internet. We'll start with the [Typicode](http://jsonplaceholder.typicode.com/) play ground. Note that you can do more than just get data, you can also post, create, delete and update data. Together these functions are often refered to a `CRUD`.
 
 Open a console in the browser.
 
@@ -538,12 +553,16 @@ The format is json - [JavaScript Object Notation](https://developer.mozilla.org/
 
 Let's start out our script with event delegation.
 
+In layout.html:
+
+`<script src="/js/scripts.js"></script>`
+
 In `scripts.js`:
 
 ```js
 document.addEventListener("click", clickHandlers);
 
-function clickHandlers() {
+function clickHandlers(event) {
   console.log(event.target);
 }
 ```
@@ -553,84 +572,36 @@ Use [matches](https://developer.mozilla.org/en-US/docs/Web/API/Element/matches) 
 ```js
 document.addEventListener("click", clickHandlers);
 
-function clickHandlers() {
-  if (event.target.matches("button")) {
-    getData();
-  }
-}
-
-var getData = function () {
+function clickHandlers(event) {
+  if (!event.target.matches("button")) return;
   fetch("https://jsonplaceholder.typicode.com/posts")
     .then((response) => response.json())
     .then((json) => console.log(json));
-};
+}
 ```
 
-Instead of logging the data we will call yet another function:
+Instead of logging the data we will call another function:
 
 ```js
 document.addEventListener("click", clickHandlers);
 
-function clickHandlers() {
-  if (event.target.matches("button")) {
-    getData();
-  }
-}
-
-var addContent = function (data) {
-  console.log(data);
-  document.querySelector(".content div").innerText = data[1].body;
-};
-
-var getData = function () {
+function clickHandlers(event) {
+  if (!event.target.matches("button")) return;
   fetch("https://jsonplaceholder.typicode.com/posts")
     .then((response) => response.json())
-    .then((json) => addContent(json));
-};
-```
-
-Note:
-
-- `document.querySelector('.content div')` - targets an empty div
-- `data[1]` - we use `[1]` to get the second entry
-- `data[1].body` - we use `.` notation to access just one of the properties of the entry
-
-For comparison, here's the XMLHttpRequest version:
-
-```js
-document.addEventListener("click", clickHandlers);
-
-function clickHandlers() {
-  console.log(event.target);
-  if (event.target.matches("button")) {
-    getData();
-  }
+    .then((data) => showData(data));
 }
 
-var addContent = function (data) {
-  console.log(data);
-  document.querySelector(".content div").innerText = data[4].title;
-};
-
-var getData = function (data) {
-  var xhr = new XMLHttpRequest();
-  xhr.onload = function () {
-    if (xhr.status >= 200 && xhr.status < 300) {
-      addContent(JSON.parse(xhr.responseText));
-    } else {
-      console.log("The request failed!");
-    }
-  };
-  xhr.open("GET", "https://jsonplaceholder.typicode.com/posts");
-  xhr.send();
-};
+function showData(data) {
+  document.querySelector(".stories").innerText = data[1].body;
+}
 ```
 
 Note:
 
-- `JSON.parse(xhr.responseText)` is similar to `response => response.json()` in the `fetch` version
-
-### 1.4.3. Looping
+- `document.querySelector(".stories")` - targets an empty div
+- `data[1]` - we use `[1]` to get the second entry
+- `data[1].body` - we use `.` notation to access just one of the properties of the entry
 
 Let's use the New York Times [developers](https://developer.nytimes.com/) site for our data.
 
@@ -638,58 +609,63 @@ Let's use the New York Times [developers](https://developer.nytimes.com/) site f
 document.addEventListener("click", clickHandlers);
 
 // store the link plus the API key in a variable
-// https://api.nytimes.com/svc/topstories/v2/science.json?api-key=uQG4jhIEHKHKm0qMKGcTHqUgAolr1GM0
-var nyt =
+var API =
   "https://api.nytimes.com/svc/topstories/v2/nyregion.json?api-key=uQG4jhIEHKHKm0qMKGcTHqUgAolr1GM0";
 
-function clickHandlers() {
-  if (event.target.matches("button")) {
-    getData();
-  }
+function clickHandlers(event) {
+  if (!event.target.matches("button")) return;
+  fetch(API)
+    .then((response) => response.json())
+    .then((data) => showData(data));
 }
 
-var getData = function () {
-  fetch(nyt)
-    .then((response) => response.json())
-    .then((json) => console.log(json));
-};
+function showData(data) {
+  console.log(data);
+}
 ```
 
 Examine the nature of the returned data in the console. The `results` property contains the data we are interested in.
 
 ```js
+function showData(data) {
+  console.log(data.results);
+}
+```
+
+### 1.4.3. Looping
+
+```js
 document.addEventListener("click", clickHandlers);
 
-var nyt =
-  "https://api.nytimes.com/svc/topstories/v2/nyregion.json?api-key=OuQiMDj0xtgzO80mtbAa4phGCAJW7GKa";
+// store the link plus the API key in a variable
+var API =
+  "https://api.nytimes.com/svc/topstories/v2/nyregion.json?api-key=uQG4jhIEHKHKm0qMKGcTHqUgAolr1GM0";
 
-function clickHandlers() {
-  if (event.target.matches("button")) {
-    getData();
-  }
+function clickHandlers(event) {
+  if (!event.target.matches("button")) return;
+  fetch(API)
+    .then((response) => response.json())
+    .then((data) => showData(data.results));
 }
 
-var addContent = function (data) {
-  // initialize an empty variable
+function showData(stories) {
+  console.log(stories[0].title);
+  // initialize an empty string
   var looped = "";
-
   // use += in a for loop that uses the length of the results
-  for (i = 0; i < data.results.length; i++) {
-    looped += `
+  for (let story of stories) {
+    console.log(story);
+    looped =
+      looped +
+      `
       <div class="item">
-        <h3>${data.results[i].title}</h3>
-        <p>${data.results[i].abstract}</p>
+        <h3>${story.title}</h3>
+        <p>${story.abstract}</p>
       </div>
       `;
   }
-  document.querySelector(".content").innerHTML = looped;
-};
-
-var getData = function () {
-  fetch(nyt)
-    .then((response) => response.json())
-    .then((json) => addContent(json));
-};
+  console.log(looped);
+}
 ```
 
 Note: I've declared the variable looped _before_ I started working with it.
@@ -697,217 +673,141 @@ Note: I've declared the variable looped _before_ I started working with it.
 Something like the below wouldn't work as it resets the value everytime the for loop runs.
 
 ```js
-for (i = 0; i < data.results.length; i++) {
+for (let story of stories) {
   var looped = "";
   looped += `
       <div class="item">
-        <h3>${data.results[i].title}</h3>
-        <p>${data.results[i].abstract}</p>
+        <h3>${story.title}</h3>
+        <p>${story.abstract}</p>
       </div>
       `;
 }
 ```
 
-An alternative method (which is more advanced) might use the `map()` method on the array:
+Here's the script so far:
 
 ```js
 document.addEventListener("click", clickHandlers);
 
-var nyt =
-  "https://api.nytimes.com/svc/topstories/v2/nyregion.json?api-key=OuQiMDj0xtgzO80mtbAa4phGCAJW7GKa";
+var API =
+  "https://api.nytimes.com/svc/topstories/v2/nyregion.json?api-key=uQG4jhIEHKHKm0qMKGcTHqUgAolr1GM0";
 
-function clickHandlers() {
-  if (event.target.matches("button")) {
-    getData();
-  }
+function clickHandlers(event) {
+  if (!event.target.matches("button")) return;
+  fetch(API)
+    .then((response) => response.json())
+    .then((data) => showData(data.results));
 }
 
-var addContent = function (data) {
-  var looped = data.results
-    .map(
-      (result) =>
-        `
+function showData(stories) {
+  var looped = "";
+  for (let story of stories) {
+    looped += `
       <div class="item">
-        <h3>${result.title}</h3>
-        <p>${result.abstract}</p>
+        <h3>${story.title}</h3>
+        <p>${story.abstract}</p>
       </div>
-    `
+      `;
+  }
+
+  document.querySelector(".stories").innerHTML = looped;
+}
+```
+
+An alternative method might use the `map()` method on the array:
+
+```js
+document.addEventListener("click", clickHandlers);
+
+var API =
+  "https://api.nytimes.com/svc/topstories/v2/nyregion.json?api-key=uQG4jhIEHKHKm0qMKGcTHqUgAolr1GM0";
+
+function clickHandlers(event) {
+  if (!event.target.matches("button")) return;
+  fetch(API)
+    .then((response) => response.json())
+    .then((data) => showData(data.results));
+}
+
+function showData(stories) {
+  var looped = stories
+    .map(
+      (result) => `
+    <div class="item">
+      <h3>${result.title}</h3>
+      <p>${result.abstract}</p>
+    </div>
+  `
     )
     .join("");
-  document.querySelector(".content").innerHTML = looped;
-};
 
-var getData = function () {
-  fetch(nyt)
-    .then((response) => response.json())
-    .then((json) => addContent(json));
-};
+  document.querySelector(".stories").innerHTML = looped;
+}
 ```
 
 Add CSS to format the data:
 
 ```css
-.ajax .content {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-gap: 2rem;
+@media (min-width: 480px) {
+  .stories {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 2rem;
+  }
 }
 
-.ajax .item {
+.stories .item {
   border-bottom: 1px dashed #aaa;
 }
 ```
 
-Note: I've added a class `ajax` to the body tag of this page _only_.
+Remove the button:
 
-Commit your changes and push to your github repo. A finished version of this file is available to you in the `spring2019-done` branch of this repo.
-
-### 1.4.4. Adding Our Ajax
-
-Add a new `ajax.html` file to the posts folder with:
-
-```html
+```md
 ---
-pageClass: ajax
+layout: layout.html
 pageTitle: New York Today
-navTitle: Ajax
 ---
 
-<h2>Ajax</h2>
+## Articles
 
-<button>Click</button>
+<div class="stories"></div>
 ```
 
-Note the new `pageClass` property. We will use this in our `layout.html` template.
-
-Add the following to `js/scripts.js`:
+And the script's dependancy on it:
 
 ```js
-document.addEventListener("click", clickHandlers);
+var API =
+  "https://api.nytimes.com/svc/topstories/v2/nyregion.json?api-key=uQG4jhIEHKHKm0qMKGcTHqUgAolr1GM0";
 
-var nyt =
-  "https://api.nytimes.com/svc/topstories/v2/nyregion.json?api-key=OuQiMDj0xtgzO80mtbAa4phGCAJW7GKa";
-
-function clickHandlers() {
-  if (event.target.matches("button")) {
-    getData();
-  }
-}
-
-var addContent = function (data) {
-  var looped = "";
-
-  for (i = 0; i < data.results.length; i++) {
-    looped += `
-      <div class="item">
-        <h3>${data.results[i].title}</h3>
-        <p>${data.results[i].abstract}</p>
-      </div>
-      `;
-  }
-
-  document.querySelector(".content div").innerHTML = looped;
-};
-
-var getData = function () {
-  fetch(nyt)
+function getStories(event) {
+  fetch(API)
     .then((response) => response.json())
-    .then((json) => addContent(json));
-};
-```
+    .then((data) => showData(data.results));
+}
 
-And edit `layout.html` to include a link (`<script src="/js/scripts.js" ></script>`) to our JavaScript file _and_ to use `pageClass` (`<body class="{{ pageClass }}">`):
-
-```html
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <link rel="stylesheet" href="/css/styles.css" />
-    <title>My Blog</title>
-  </head>
-  <!-- new -->
-  <body class="{{ pageClass }}">
-    <nav>
-      <ul>
-        {% for nav in collections.nav %}
-        <li
-          class="nav-item{% if nav.url == page.url %} nav-item-active{% endif %}"
-        >
-          <a href="{{ nav.url | url }}">{{ nav.data.navTitle }}</a>
-        </li>
-        {%- endfor -%}
-      </ul>
-    </nav>
-
-    <div class="content">
-      <h1>{{ pageTitle }}</h1>
-
-      {{ content }}
+function showData(stories) {
+  var looped = stories
+    .map(
+      (result) => `
+    <div class="item">
+      <h3>${result.title}</h3>
+      <p>${result.abstract}</p>
     </div>
-    <!-- new -->
-    <script src="/js/scripts.js"></script>
-  </body>
-</html>
+  `
+    )
+    .join("");
+
+  document.querySelector(".stories").innerHTML = looped;
+}
+
+getStories();
 ```
 
-Note:
+### Second Deploy
 
-- the ajax should work
-- the body tag should now have the class defined in `ajax.html`
-
-Add CSS to taste:
-
-```css
-.nav-item-active a {
-  color: #fff;
-  background-color: #007eb6;
-  border-radius: 4px;
-}
-
-.ajax button {
-  border: none;
-  padding: 0.5rem 1rem;
-  background: #007eb6;
-  color: #fff;
-  border-radius: 4px;
-  font-size: 1rem;
-}
-
-.ajax .content > div {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-gap: 2rem;
-}
-
-.ajax .item {
-  border-bottom: 1px dashed #aaa;
-}
-```
-
-Note:
-
-- we are using the className frontmatter property to scope this page and enable the css
-- the use of the `>` selector
-- the use of the `.nav-item-active a` selector
-- the root relative paths for the CSS and JavaScript.
-
-If we upload this to a web server our site will [break](http://oit2.scps.nyu.edu/~devereld/session7/_site/) due to the root links.
-
-The error reads:
-
-`Loading failed for the <script> with source “http://oit2.scps.nyu.edu/js/scripts.js”.`
-
-There are a number of ways to deal with this including putting a `base` tag in the head of the document:
-
-`<base href="https://www.oit2.scps.nyu.edu.com/session7/_site">`
-
-We'll use [Netlify](https://www.netlify.com/) to put this on the web. Register and/or log in to [app.netlify.com](https://app.netlify.com) and drag and drop the `_site` folder onto the web browser window to upload the contents [live to the web](https://zealous-kilby-113356.netlify.com/).
-
-We can also hook into a Github branch to set up [continuous delpoyment](https://app.netlify.com/start). Here is a [sample](https://agitated-bartik-814348.netlify.com/) with [admin](https://agitated-bartik-814348.netlify.com/admin).
-
-For more experience with 11ty, download the official 11ty blog template or, if you feel like a challenge and something fancier, try Villalobos' new [template](https://github.com/planetoftheweb/seven) or [Skeleventy](https://skeleventy.netlify.com/), or any of the starter files on the [11ty](https://www.11ty.io/docs/starter/) starter page.
+Commit, merge and push the content to Github. Log in to [app.netlify.com](https://app.netlify.com) and ensure that the deploy has succeeded.
 
 ## 1.5. Notes
+
+For more experience with 11ty, download the official 11ty blog template or, if you feel like a challenge and something fancier, try Villalobos' new [template](https://github.com/planetoftheweb/seven) or [Skeleventy](https://skeleventy.netlify.com/), or any of the starter files on the [11ty](https://www.11ty.io/docs/starter/) starter page.

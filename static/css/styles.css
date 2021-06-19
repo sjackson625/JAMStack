@@ -52,10 +52,21 @@ button {
   color: #fff;
   border-radius: 4px;
   font-size: 1rem;
-  width: 4rem;
 }
 
 .pics .content img {
   width: 60%;
   padding: 1rem;
+}
+
+@media (min-width: 680px) {
+  .stories {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 2rem;
+  }
+}
+
+.stories .item {
+  border-bottom: 1px dashed #aaa;
 }
