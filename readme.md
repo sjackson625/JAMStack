@@ -461,7 +461,7 @@ Note: the `|` character in `post.date | date: "%Y-%m-%d"` is a filter. There are
 
 ### Commit and Deploy
 
-Commit and push your site to a new Github repository.
+Commit your changes, merge them into the main branch and push your site to a new Github repository.
 
 Sign into Netlify and create a new site from Git.
 
