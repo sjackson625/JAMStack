@@ -12,7 +12,11 @@ function showData(stories) {
     .map(
       (result) => `
     <div class="item">
-      <h3>${result.title}</h3>
+    <picture>
+      <img src="${result.multimedia[3].url}" alt="${result.multimedia[3].caption}" />
+      <figcaption>${result.multimedia[3].caption}</figcaption>
+      </picture>
+      <h3><a href="${result.url}">${result.title}</a></h3>
       <p>${result.abstract}</p>
     </div>
   `

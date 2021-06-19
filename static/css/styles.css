@@ -59,6 +59,10 @@ button {
   padding: 1rem;
 }
 
+figcaption {
+  font-size: 0.75rem;
+}
+
 @media (min-width: 680px) {
   .stories {
     display: grid;
