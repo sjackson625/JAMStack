@@ -17,6 +17,10 @@
   },
   "homepage": "https://github.com/sjackson625/JAMStack#readme",
   "devDependencies": {
-    "@11ty/eleventy": "^0.12.1"
-  }
+    "@11ty/eleventy": "^0.12.1",
+    "node-fetch": "^2.6.5",
+    "prettier": "^2.4.1"
+  },
+  "dependencies": {},
+  "keywords": []
 }

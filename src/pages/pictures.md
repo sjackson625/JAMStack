@@ -1,4 +1,5 @@
 ---
+layout: layout.html
 pageTitle: Apples
 navTitle: Pictures
 singleImage: /img/apples.png
@@ -7,6 +8,7 @@ images:
   - apples-red.png
   - apples-group.png
 pageClass: pictures
+tags: pages
 ---
 ## Markdown, single image:
 

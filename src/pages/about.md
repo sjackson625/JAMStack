@@ -1,6 +1,8 @@
 ---
+layout: layout.html
 pageTitle: About Us
 navTitle: About
+tags: pages
 ---
 
 ## We are
